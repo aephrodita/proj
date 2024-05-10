@@ -6,15 +6,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table("request_logger")
-public class MyLoger {
+@Table(name = "request_logger")
+public class MyLogger {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id", nullable = false)
@@ -22,5 +21,4 @@ public class MyLoger {
     private String request;
     private String response;
     private LocalDateTime createdAt;
-
 }
