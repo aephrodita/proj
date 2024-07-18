@@ -16,14 +16,9 @@ public class MovieService {
     public String addMovie(MovieDto dto){
         Movie movie = new Movie();
         movie.setName(dto.getName());
-        movie.setName_kaz(dto.getName_kaz());
-        movie.setName_rus(dto.getName_rus());
-        movie.setDescription(dto.getDescription());
-        movie.setProduction(dto.getProduction());
-        movie.setDirector(dto.getDirector());
+        movie.setCategory(dto.getCategory());
         movie.setAge_restriction(dto.getAge_restriction());
         movie.setRating(dto.getRating());
-        movie.setVotes(0);
         repository.save(movie);
 
         return "added";
@@ -32,11 +27,7 @@ public class MovieService {
     public String updateMovie(long movieId, MovieDto updatedMovie) {
         Movie existingMovie = repository.findById(movieId);
         existingMovie.setName(updatedMovie.getName());
-        existingMovie.setName_kaz(updatedMovie.getName_kaz());
-        existingMovie.setName_rus(updatedMovie.getName_rus());
-        existingMovie.setDescription(updatedMovie.getDescription());
-        existingMovie.setProduction(updatedMovie.getProduction());
-        existingMovie.setDirector(updatedMovie.getDirector());
+        existingMovie.setCategory(updatedMovie.getCategory());
         existingMovie.setAge_restriction(updatedMovie.getAge_restriction());
         existingMovie.setRating(updatedMovie.getRating());
         repository.save(existingMovie);

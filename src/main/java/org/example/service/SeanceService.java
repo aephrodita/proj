@@ -42,7 +42,7 @@ public class SeanceService {
                 seat++;
             }
         }
-        return seance.toString();
+        return "added";
     }
     public List<Seance> getAllSeance(){
         return repository.findAll();

@@ -1,6 +1,7 @@
 package org.example.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +26,4 @@ public class Cinema {
     private String address;
     @Column(name = "city_name")
     private String city_name;
-    @Column(name = "description")
-    private String description;
 }

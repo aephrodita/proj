@@ -1,0 +1,1418 @@
+Index: src/main/java/org/example/repository/TicketRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.example.repository;\n\nimport org.example.entity.Place;\nimport org.example.entity.Ticket;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.stereotype.Repository;\n\nimport java.util.List;\n\n@Repository\npublic interface TicketRepository extends JpaRepository<Ticket, Long> {\n    List<Ticket> findBySeanceId(long seanceId);\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/repository/TicketRepository.java b/src/main/java/org/example/repository/TicketRepository.java
+--- a/src/main/java/org/example/repository/TicketRepository.java	(revision 7d03a6a32f3b7fe4b59198ec84807d78bb85bdac)
++++ b/src/main/java/org/example/repository/TicketRepository.java	(date 1715257589864)
+@@ -1,5 +1,6 @@
+ package org.example.repository;
+ 
++import org.example.entity.Movie;
+ import org.example.entity.Place;
+ import org.example.entity.Ticket;
+ import org.springframework.data.jpa.repository.JpaRepository;
+@@ -9,5 +10,6 @@
+ 
+ @Repository
+ public interface TicketRepository extends JpaRepository<Ticket, Long> {
++    Ticket findById(long ticketId);
+     List<Ticket> findBySeanceId(long seanceId);
+ }
+Index: src/main/java/org/example/dto/SignUpRequest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/dto/SignUpRequest.java b/src/main/java/org/example/dto/SignUpRequest.java
+new file mode 100644
+--- /dev/null	(date 1715291519005)
++++ b/src/main/java/org/example/dto/SignUpRequest.java	(date 1715291519005)
+@@ -0,0 +1,28 @@
++package org.example.dto;
++
++import io.swagger.v3.oas.annotations.media.Schema;
++import jakarta.validation.constraints.Email;
++import jakarta.validation.constraints.NotBlank;
++import jakarta.validation.constraints.Size;
++import lombok.Data;
++
++@Data
++@Schema(description = "Запрос на регистрацию")
++public class SignUpRequest {
++
++    @Schema(description = "Имя пользователя", example = "Jon")
++    @Size(min = 5, max = 50, message = "Имя пользователя должно больше 5 символов")
++    @NotBlank(message = "Имя пользователя не может быть пустыми")
++    private String username;
++
++    @Schema(description = "Адрес электронной почты", example = "jondoe@gmail.com")
++    @Size(min = 5, max = 255, message = "Адрес электронной почты должен больше 5 символов")
++    @NotBlank(message = "Адрес электронной почты не может быть пустыми")
++    @Email(message = "Email адрес должен быть в формате user@example.com")
++    private String email;
++
++    @Schema(description = "Пароль", example = "my_1secret1_password")
++    @Size(min = 5,max = 255, message = "Длина пароля должна быть больше 5 символов")
++    @NotBlank(message = "Пароль не может быть пустыми")
++    private String password;
++}
+Index: src/main/java/org/example/controller/AuthController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/controller/AuthController.java b/src/main/java/org/example/controller/AuthController.java
+new file mode 100644
+--- /dev/null	(date 1713950330084)
++++ b/src/main/java/org/example/controller/AuthController.java	(date 1713950330084)
+@@ -0,0 +1,35 @@
++package org.example.controller;
++
++import io.swagger.v3.oas.annotations.Operation;
++import io.swagger.v3.oas.annotations.tags.Tag;
++import jakarta.validation.Valid;
++import lombok.RequiredArgsConstructor;
++import org.example.dto.JwtAuthenticationResponse;
++import org.example.dto.SignInRequest;
++import org.example.dto.SignUpRequest;
++import org.example.service.AuthenticationService;
++import org.springframework.web.bind.annotation.PostMapping;
++import org.springframework.web.bind.annotation.RequestBody;
++import org.springframework.web.bind.annotation.RequestMapping;
++import org.springframework.web.bind.annotation.RestController;
++
++@RestController
++@RequestMapping("/auth")
++@RequiredArgsConstructor
++@Tag(name = "Аутентификация")
++public class AuthController {
++    private final AuthenticationService authenticationService;
++
++    @Operation(summary = "Регистрация пользователя")
++    @PostMapping("/sign-up")
++    public JwtAuthenticationResponse signUp(@RequestBody @Valid SignUpRequest request) {
++        return authenticationService.signUp(request);
++    }
++
++    @Operation(summary = "Авторизация пользователя")
++    @PostMapping("/sign-in")
++    public JwtAuthenticationResponse signIn(@RequestBody @Valid SignInRequest request) {
++        return authenticationService.signIn(request);
++    }
++
++}
+Index: src/main/java/org/example/controller/ExampleController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/controller/ExampleController.java b/src/main/java/org/example/controller/ExampleController.java
+new file mode 100644
+--- /dev/null	(date 1714419851510)
++++ b/src/main/java/org/example/controller/ExampleController.java	(date 1714419851510)
+@@ -0,0 +1,32 @@
++package org.example.controller;
++
++import io.swagger.v3.oas.annotations.Operation;
++import io.swagger.v3.oas.annotations.tags.Tag;
++import lombok.RequiredArgsConstructor;
++import org.example.service.UserService;
++import org.springframework.security.access.prepost.PreAuthorize;
++import org.springframework.web.bind.annotation.GetMapping;
++import org.springframework.web.bind.annotation.RequestMapping;
++import org.springframework.web.bind.annotation.RestController;
++
++@RestController
++@RequestMapping("/example")
++@RequiredArgsConstructor
++@Tag(name = "Аутентификация")
++public class ExampleController {
++    private final UserService service;
++
++    @GetMapping
++    @Operation(summary = "Доступен только авторизованным пользователям")
++    public String example() {
++        return "Hello, world!";
++    }
++
++    @GetMapping("/get-admin")
++    @Operation(summary = "Получить роль ADMIN (для демонстрации)")
++    public void getAdmin() {
++        service.getAdmin();
++    }
++
++
++}
+Index: src/main/java/org/example/config/JwtAuthenticationFilter.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/config/JwtAuthenticationFilter.java b/src/main/java/org/example/config/JwtAuthenticationFilter.java
+new file mode 100644
+--- /dev/null	(date 1715083239265)
++++ b/src/main/java/org/example/config/JwtAuthenticationFilter.java	(date 1715083239265)
+@@ -0,0 +1,70 @@
++package org.example.config;
++
++import jakarta.servlet.FilterChain;
++import jakarta.servlet.ServletException;
++import jakarta.servlet.http.HttpServletRequest;
++import jakarta.servlet.http.HttpServletResponse;
++import lombok.RequiredArgsConstructor;
++import org.apache.commons.lang3.StringUtils;
++import org.example.service.JwtService;
++import org.example.service.UserService;
++import org.springframework.lang.NonNull;
++import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
++import org.springframework.security.core.context.SecurityContext;
++import org.springframework.security.core.context.SecurityContextHolder;
++import org.springframework.security.core.userdetails.UserDetails;
++import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
++import org.springframework.stereotype.Component;
++import org.springframework.web.filter.OncePerRequestFilter;
++
++import java.io.IOException;
++
++@Component
++@RequiredArgsConstructor
++public class JwtAuthenticationFilter extends OncePerRequestFilter {
++
++    public static final String BEARER_PREFIX = "Bearer ";
++    public static final String HEADER_NAME = "Authorization";
++    private final JwtService jwtService;
++    private final UserService userService;
++
++    @Override
++    protected void doFilterInternal(
++            @NonNull HttpServletRequest request,
++            @NonNull HttpServletResponse response,
++            @NonNull FilterChain filterChain
++    ) throws ServletException, IOException {
++        // Получаем токен из заголовка
++        var authHeader = request.getHeader(HEADER_NAME);
++        if (StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(authHeader, BEARER_PREFIX)) {
++            filterChain.doFilter(request, response);
++            return;
++        }
++
++        // Обрезаем префикс и получаем имя пользователя из токена
++        var jwt = authHeader.substring(BEARER_PREFIX.length());
++        var username = jwtService.extractUserName(jwt);
++
++        if (StringUtils.isNotEmpty(username) && SecurityContextHolder.getContext().getAuthentication() == null) {
++            UserDetails userDetails = userService
++                    .userDetailsService()
++                    .loadUserByUsername(username);
++
++            // Если токен валиден, то аутентифицируем пользователя
++            if (jwtService.isTokenValid(jwt, userDetails)) {
++                SecurityContext context = SecurityContextHolder.createEmptyContext();
++
++                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
++                        userDetails,
++                        null,
++                        userDetails.getAuthorities()
++                );
++
++                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
++                context.setAuthentication(authToken);
++                SecurityContextHolder.setContext(context);
++            }
++        }
++        filterChain.doFilter(request, response);
++    }
++}
+Index: src/main/java/org/example/config/SecurityConfiguration.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/config/SecurityConfiguration.java b/src/main/java/org/example/config/SecurityConfiguration.java
+new file mode 100644
+--- /dev/null	(date 1714436415258)
++++ b/src/main/java/org/example/config/SecurityConfiguration.java	(date 1714436415258)
+@@ -0,0 +1,76 @@
++package org.example.config;
++
++import lombok.RequiredArgsConstructor;
++import org.example.service.UserService;
++import org.springframework.context.annotation.Bean;
++import org.springframework.context.annotation.Configuration;
++import org.springframework.security.authentication.AuthenticationManager;
++import org.springframework.security.authentication.AuthenticationProvider;
++import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
++import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
++import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
++import org.springframework.security.config.annotation.web.builders.HttpSecurity;
++import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
++import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
++import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
++import org.springframework.security.crypto.password.PasswordEncoder;
++import org.springframework.security.web.SecurityFilterChain;
++import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
++import org.springframework.web.cors.CorsConfiguration;
++
++import java.util.List;
++
++import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
++
++@Configuration
++@EnableWebSecurity
++@EnableMethodSecurity
++@RequiredArgsConstructor
++public class SecurityConfiguration {
++    private final JwtAuthenticationFilter jwtAuthenticationFilter;
++    private final UserService userService;
++
++    @Bean
++    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
++        http.csrf(AbstractHttpConfigurer::disable)
++                // Своего рода отключение CORS (разрешение запросов со всех доменов)
++                .cors(cors -> cors.configurationSource(request -> {
++                    var corsConfiguration = new CorsConfiguration();
++                    corsConfiguration.setAllowedOriginPatterns(List.of("*"));
++                    corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
++                    corsConfiguration.setAllowedHeaders(List.of("*"));
++                    corsConfiguration.setAllowCredentials(true);
++                    return corsConfiguration;
++                }))
++                // Настройка доступа к конечным точкам
++                .authorizeHttpRequests(request -> request
++                        // Можно указать конкретный путь, * - 1 уровень вложенности, ** - любое количество уровней вложенности
++                        .requestMatchers("/**").permitAll()
++                        .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
++                        .requestMatchers("/endpoint", "/admin/**").hasRole("ADMIN")
++                        .anyRequest().permitAll())
++                .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
++                .authenticationProvider(authenticationProvider())
++                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
++        return http.build();
++    }
++
++    @Bean
++    public PasswordEncoder passwordEncoder() {
++        return new BCryptPasswordEncoder();
++    }
++
++    @Bean
++    public AuthenticationProvider authenticationProvider() {
++        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
++        authProvider.setUserDetailsService(userService.userDetailsService());
++        authProvider.setPasswordEncoder(passwordEncoder());
++        return authProvider;
++    }
++
++    @Bean
++    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
++            throws Exception {
++        return config.getAuthenticationManager();
++    }
++}
+Index: src/main/java/org/example/entity/User.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.example.entity;\n\nimport jakarta.persistence.*;\nimport lombok.AllArgsConstructor;\nimport lombok.Getter;\nimport lombok.NoArgsConstructor;\nimport lombok.Setter;\n\n@Table(name = \"kinokz_user\")\n@Entity\n@Getter\n@Setter\n@NoArgsConstructor\n@AllArgsConstructor\npublic class User {\n    @Id\n    @GeneratedValue\n    @Column(name = \"id\")\n    private long id;\n    @Column(name = \"name\")\n    private String name;\n    @Column(name = \"email\")\n    private String email;\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/entity/User.java b/src/main/java/org/example/entity/User.java
+--- a/src/main/java/org/example/entity/User.java	(revision 7d03a6a32f3b7fe4b59198ec84807d78bb85bdac)
++++ b/src/main/java/org/example/entity/User.java	(date 1713950004994)
+@@ -1,24 +1,69 @@
+ package org.example.entity;
+ 
+ import jakarta.persistence.*;
+-import lombok.AllArgsConstructor;
+-import lombok.Getter;
+-import lombok.NoArgsConstructor;
+-import lombok.Setter;
++import lombok.*;
++import org.springframework.security.core.GrantedAuthority;
++import org.springframework.security.core.authority.SimpleGrantedAuthority;
++import org.springframework.security.core.userdetails.UserDetails;
+ 
+-@Table(name = "kinokz_user")
++import java.util.Collection;
++import java.util.List;
++
+ @Entity
++@Builder
+ @Getter
+ @Setter
+ @NoArgsConstructor
+ @AllArgsConstructor
+-public class User {
++@Table(name = "users")
++public class User implements UserDetails {
+     @Id
+-    @GeneratedValue
+     @Column(name = "id")
+-    private long id;
+-    @Column(name = "name")
+-    private String name;
+-    @Column(name = "email")
++    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_seq")
++    @SequenceGenerator(name = "user_id_seq", sequenceName = "user_id_seq", allocationSize = 1)
++    private Long id;
++
++    @Column(name = "username", unique = true, nullable = false)
++    private String username;
++
++    @Column(name = "password", nullable = false)
++    private String password;
++
++    @Column(name = "email", unique = true, nullable = false)
+     private String email;
++
++    @Enumerated(EnumType.STRING)
++    @Column(name = "role", nullable = false)
++    private Role role;
++
++    @Override
++    public Collection<? extends GrantedAuthority> getAuthorities() {
++        return List.of(new SimpleGrantedAuthority(role.name()));
++    }
++
++    @Override
++    public boolean isAccountNonExpired() {
++        return true;
++    }
++
++    @Override
++    public boolean isAccountNonLocked() {
++        return true;
++    }
++
++    @Override
++    public boolean isCredentialsNonExpired() {
++        return true;
++    }
++
++    @Override
++    public boolean isEnabled() {
++        return true;
++    }
++
++    public enum Role {
++        ROLE_USER,
++        ROLE_ADMIN
++    }
+ }
++
+Index: src/main/resources/application.yaml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>server:\n  port: 8091\n\nspring:\n  datasource:\n    driver-class-name: org.postgresql.Driver\n    username: postgres\n    password: '0570'\n    url: jdbc:postgresql://localhost:5432/kinokz\n  jpa:\n    hibernate:\n      ddl-auto: update\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/resources/application.yaml b/src/main/resources/application.yaml
+--- a/src/main/resources/application.yaml	(revision 7d03a6a32f3b7fe4b59198ec84807d78bb85bdac)
++++ b/src/main/resources/application.yaml	(date 1714477480516)
+@@ -2,6 +2,8 @@
+   port: 8091
+ 
+ spring:
++  application:
++    name: security-security
+   datasource:
+     driver-class-name: org.postgresql.Driver
+     username: postgres
+@@ -10,3 +12,10 @@
+   jpa:
+     hibernate:
+       ddl-auto: update
++    show-sql: true
++    properties:
++      hibernate:
++        format_sql: true
++token:
++  signing:
++    key: 53A73E5F1C4E0A2D3B5F2D784E6A1B423D6F247D1F6E5C3A596D635A75327855
+\ No newline at end of file
+Index: src/main/java/org/example/controller/HomeController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.example.controller;\n\nimport lombok.AllArgsConstructor;\nimport org.example.aspect.ToLogOurApp;\nimport org.example.dto.*;\nimport org.example.entity.*;\nimport org.example.service.*;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.web.bind.annotation.*;\nimport java.util.List;\n\n@RestController\n@CrossOrigin(origins = \"http://localhost:3000\")\n@RequestMapping(\"/\")\n@AllArgsConstructor\npublic class HomeController {\n    private final UserService userService;\n    @Autowired\n    private final MovieService movieService;\n    private final TicketService ticketService;\n    private final CinemaService cinemaService;\n    private final HallService hallService;\n    private final SeanceService seanceService;\n    private final PlaceService placeService;\n    @GetMapping(\"/user\")\n    public List<User> getAllUsers(){\n        return userService.getAllUser();\n    }\n\n    @PostMapping(\"/user\")\n    @ToLogOurApp\n    public String addUser(@RequestBody UserDto userDto){\n        return userService.addUser(userDto);\n    }\n\n    @GetMapping(\"/movie\")\n    public List<Movie> getAllMovies(){\n        return movieService.getAllMovie();\n    }\n    @GetMapping(\"/movie/{movieId}\")\n    public Movie getMovie(@PathVariable long movieId){\n        return movieService.getOneMovie(movieId);\n    }\n\n    @PostMapping(\"/movie\")\n    @ToLogOurApp\n    public String addMovie(@RequestBody MovieDto movieDto){\n        return movieService.addMovie(movieDto);\n    }\n\n    @GetMapping(\"/ticket\")\n    public List<Ticket> getAllTicket(){\n        return ticketService.getAllTicket();\n    }\n\n    @GetMapping(\"/ticket/{seanceId}\")\n    public List<Ticket> getTicketSeance(@PathVariable long seanceId){\n        return ticketService.findTicketInSeance(seanceId);\n    }\n\n    @PostMapping(\"/ticket\")\n    @ToLogOurApp\n    public String addTicket(@RequestBody TicketDto ticketDto){\n        return ticketService.addTicket(ticketDto);\n    }\n\n    @GetMapping(\"/cinema\")\n    public List<Cinema> getAllCinema(){\n        return cinemaService.getAllCinema();\n    }\n\n    @GetMapping(\"/cinema/{cinemaId}\")\n    public Cinema getCinema(@PathVariable long cinemaId){\n        return cinemaService.getOneCinema(cinemaId);\n    }\n\n    @PostMapping(\"/cinema\")\n    @ToLogOurApp\n    public String addCinema(@RequestBody CinemaDto cinemaDto){\n        return cinemaService.addCinema(cinemaDto);\n    }\n\n    @GetMapping(\"/hall\")\n    public List<Hall> getAllHalls(){\n        return hallService.getAllHalls();\n    }\n\n    @GetMapping(\"/hall/{hallId}\")\n    public Hall getHall(@PathVariable long hallId){\n        return hallService.getOneHall(hallId);\n    }\n\n    @PostMapping(\"/hall\")\n    @ToLogOurApp\n    public String addHall(@RequestBody HallDto hallDto){\n        return hallService.addHall(hallDto);\n    }\n\n    @GetMapping(\"/seance\")\n    public List<Seance> getAllSeance(){\n        return seanceService.getAllSeance();\n    }\n\n    @GetMapping(\"/seance/{seanceId}\")\n    public Seance getSeance(@PathVariable long seanceId){\n        return seanceService.getOneSeance(seanceId);\n    }\n    @GetMapping(\"/seance/movie/{movieId}\")\n    public List<Seance> getSeanceByMovieId(@PathVariable long movieId){\n        return seanceService.findSeanceByMovieId(movieId);\n    }\n\n    @PostMapping(\"/seance\")\n    @ToLogOurApp\n    public String addSeance(@RequestBody SeanceDto seanceDto){\n        return seanceService.addSeance(seanceDto);\n    }\n\n    @GetMapping(\"/place\")\n    public List<Place> getAllPlace(){\n        return placeService.getAllPlace();\n    }\n\n    @GetMapping(\"/place/{hallId}\")\n    public List<Place> getHallPlace(@PathVariable long hallId){\n        return placeService.findPlacesInHall(hallId);\n    }\n\n    @PostMapping(\"/placeHall1\")\n    @ToLogOurApp\n    public String addPlaceRoom1(@RequestBody PlaceDto placeDto){\n        return placeService.addPlaceHall1(placeDto);\n    }\n\n    @PostMapping(\"/placeHall2\")\n    @ToLogOurApp\n    public String addPlaceRoom2(@RequestBody PlaceDto placeDto){\n        return placeService.addPlaceHall2(placeDto);\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/controller/HomeController.java b/src/main/java/org/example/controller/HomeController.java
+--- a/src/main/java/org/example/controller/HomeController.java	(revision 7d03a6a32f3b7fe4b59198ec84807d78bb85bdac)
++++ b/src/main/java/org/example/controller/HomeController.java	(date 1715287363729)
+@@ -1,11 +1,13 @@
+ package org.example.controller;
+ 
++import io.swagger.v3.oas.annotations.Operation;
+ import lombok.AllArgsConstructor;
+ import org.example.aspect.ToLogOurApp;
+ import org.example.dto.*;
+ import org.example.entity.*;
+ import org.example.service.*;
+ import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.security.access.prepost.PreAuthorize;
+ import org.springframework.web.bind.annotation.*;
+ import java.util.List;
+ 
+@@ -22,21 +24,24 @@
+     private final HallService hallService;
+     private final SeanceService seanceService;
+     private final PlaceService placeService;
++
++    @GetMapping("/admin")
++    @Operation(summary = "Доступен только авторизованным пользователям с ролью ADMIN")
++    @PreAuthorize("hasRole('ADMIN')")
++    public String exampleAdmin() {
++        return "Hello, admin!";
++    }
++
+     @GetMapping("/user")
+-    public List<User> getAllUsers(){
++    public List<User> getAllUsers() {
+         return userService.getAllUser();
+     }
+ 
+-    @PostMapping("/user")
+-    @ToLogOurApp
+-    public String addUser(@RequestBody UserDto userDto){
+-        return userService.addUser(userDto);
+-    }
+-
+     @GetMapping("/movie")
+     public List<Movie> getAllMovies(){
+         return movieService.getAllMovie();
+     }
++
+     @GetMapping("/movie/{movieId}")
+     public Movie getMovie(@PathVariable long movieId){
+         return movieService.getOneMovie(movieId);
+@@ -48,14 +53,31 @@
+         return movieService.addMovie(movieDto);
+     }
+ 
++    @PutMapping("/movie/{movieId}/edit")
++    @ToLogOurApp
++    public String updateMovie(@PathVariable long movieId, @RequestBody MovieDto movieDto){
++        return movieService.updateMovie(movieId, movieDto);
++    }
++
++    @DeleteMapping("/movie/{movieId}")
++    @ToLogOurApp
++    public String deleteMovie(@PathVariable long movieId){
++        return movieService.deleteMovie(movieId);
++    }
++
+     @GetMapping("/ticket")
+     public List<Ticket> getAllTicket(){
+         return ticketService.getAllTicket();
+     }
+ 
+-    @GetMapping("/ticket/{seanceId}")
+-    public List<Ticket> getTicketSeance(@PathVariable long seanceId){
+-        return ticketService.findTicketInSeance(seanceId);
++    @GetMapping("/ticket/{ticketId}")
++    public Ticket getTicket(@PathVariable long ticketId){
++        return ticketService.getOneTicket(ticketId);
++    }
++
++    @PutMapping("/ticket/{ticketId}/user/{userId}")
++    public String butTicket(@PathVariable long ticketId, @PathVariable long userId){
++        return ticketService.buyTicket(ticketId, userId);
+     }
+ 
+     @PostMapping("/ticket")
+@@ -105,11 +127,17 @@
+     public Seance getSeance(@PathVariable long seanceId){
+         return seanceService.getOneSeance(seanceId);
+     }
+-    @GetMapping("/seance/movie/{movieId}")
++
++    @GetMapping("/movie/seance/{movieId}")
+     public List<Seance> getSeanceByMovieId(@PathVariable long movieId){
+         return seanceService.findSeanceByMovieId(movieId);
+     }
+ 
++    @GetMapping("/seance/ticket/{seanceId}")
++    public List<Ticket> getTicketBySeanceId(@PathVariable long seanceId){
++        return ticketService.findTicketBySeanceId(seanceId);
++    }
++
+     @PostMapping("/seance")
+     @ToLogOurApp
+     public String addSeance(@RequestBody SeanceDto seanceDto){
+@@ -126,13 +154,13 @@
+         return placeService.findPlacesInHall(hallId);
+     }
+ 
+-    @PostMapping("/placeHall1")
++    @PostMapping("/placehall1")
+     @ToLogOurApp
+     public String addPlaceRoom1(@RequestBody PlaceDto placeDto){
+         return placeService.addPlaceHall1(placeDto);
+     }
+ 
+-    @PostMapping("/placeHall2")
++    @PostMapping("/placehall2")
+     @ToLogOurApp
+     public String addPlaceRoom2(@RequestBody PlaceDto placeDto){
+         return placeService.addPlaceHall2(placeDto);
+Index: src/main/java/org/example/dto/JwtAuthenticationResponse.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/dto/JwtAuthenticationResponse.java b/src/main/java/org/example/dto/JwtAuthenticationResponse.java
+new file mode 100644
+--- /dev/null	(date 1713949813056)
++++ b/src/main/java/org/example/dto/JwtAuthenticationResponse.java	(date 1713949813056)
+@@ -0,0 +1,17 @@
++package org.example.dto;
++
++import io.swagger.v3.oas.annotations.media.Schema;
++import lombok.AllArgsConstructor;
++import lombok.Builder;
++import lombok.Data;
++import lombok.NoArgsConstructor;
++
++@Data
++@Builder
++@NoArgsConstructor
++@AllArgsConstructor
++@Schema(description = "Ответ c токеном доступа")
++public class JwtAuthenticationResponse {
++    @Schema(description = "Токен доступа", example = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYyMjUwNj...")
++    private String token;
++}
+\ No newline at end of file
+Index: src/main/java/org/example/dto/SignInRequest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/dto/SignInRequest.java b/src/main/java/org/example/dto/SignInRequest.java
+new file mode 100644
+--- /dev/null	(date 1715291401757)
++++ b/src/main/java/org/example/dto/SignInRequest.java	(date 1715291401757)
+@@ -0,0 +1,21 @@
++package org.example.dto;
++
++import io.swagger.v3.oas.annotations.media.Schema;
++import jakarta.validation.constraints.NotBlank;
++import jakarta.validation.constraints.Size;
++import lombok.Data;
++
++@Data
++@Schema(description = "Запрос на аутентификацию")
++public class SignInRequest {
++
++    @Schema(description = "Имя пользователя", example = "Jon")
++    @Size(min = 5, max = 50, message = "Имя пользователя должно содержать больше 5 символов")
++    @NotBlank(message = "Имя пользователя не может быть пустыми")
++    private String username;
++
++    @Schema(description = "Пароль", example = "my_1secret1_password")
++    @Size(min = 5, max = 255, message = "Длина пароля должна быть больше 5 символов")
++    @NotBlank(message = "Пароль не может быть пустыми")
++    private String password;
++}
+Index: src/main/java/org/example/CustomException.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/CustomException.java b/src/main/java/org/example/CustomException.java
+new file mode 100644
+--- /dev/null	(date 1715338343458)
++++ b/src/main/java/org/example/CustomException.java	(date 1715338343458)
+@@ -0,0 +1,15 @@
++package org.example;
++
++public class CustomException extends RuntimeException {
++    private final int errorCode;
++
++    public CustomException(String message, int errorCode) {
++        super(message);
++        this.errorCode = errorCode;
++    }
++
++    public int getErrorCode() {
++        return errorCode;
++    }
++}
++
+Index: src/main/java/org/example/entity/Movie.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.example.entity;\n\nimport jakarta.persistence.*;\nimport lombok.AllArgsConstructor;\nimport lombok.Getter;\nimport lombok.NoArgsConstructor;\nimport lombok.Setter;\n\n@Table(name = \"movie\")\n@Entity\n@Getter\n@Setter\n@NoArgsConstructor\n@AllArgsConstructor\npublic class Movie {\n    @Id\n    @GeneratedValue\n    @Column(name = \"id\")\n    private long id;\n    @Column(name = \"name\")\n    private String name;\n    @Column(name = \"name_kaz\")\n    private String name_kaz;\n    @Column(name = \"name_rus\")\n    private String name_rus;\n    @Column(name = \"description\")\n    private String description;\n    @Column(name = \"production\")\n    private String production;\n    @Column(name = \"director\")\n    private String director;\n    @Column(name = \"age_restriction\")\n    private double age_restriction;\n    @Column(name = \"rating\")\n    private double rating;\n    @Column(name = \"votes\")\n    private int votes;\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/entity/Movie.java b/src/main/java/org/example/entity/Movie.java
+--- a/src/main/java/org/example/entity/Movie.java	(revision 7d03a6a32f3b7fe4b59198ec84807d78bb85bdac)
++++ b/src/main/java/org/example/entity/Movie.java	(date 1714415108173)
+@@ -1,11 +1,16 @@
+ package org.example.entity;
+ 
++import com.fasterxml.jackson.annotation.JsonAlias;
++import com.fasterxml.jackson.annotation.JsonIgnore;
++import com.fasterxml.jackson.annotation.JsonKey;
+ import jakarta.persistence.*;
+ import lombok.AllArgsConstructor;
+ import lombok.Getter;
+ import lombok.NoArgsConstructor;
+ import lombok.Setter;
+ 
++import java.util.List;
++
+ @Table(name = "movie")
+ @Entity
+ @Getter
+@@ -35,4 +40,7 @@
+     private double rating;
+     @Column(name = "votes")
+     private int votes;
++    @OneToMany(mappedBy = "movie")
++    @JsonIgnore
++    private List<Seance> seanceList;
+ }
+Index: src/main/java/org/example/repository/UserRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.example.repository;\n\nimport org.example.entity.User;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.stereotype.Repository;\n\n@Repository\npublic interface UserRepository extends JpaRepository<User, Long> {\n\n    //    public List<User> findStudentByNameContainsIgnoreCase(String name);\n\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/repository/UserRepository.java b/src/main/java/org/example/repository/UserRepository.java
+--- a/src/main/java/org/example/repository/UserRepository.java	(revision 7d03a6a32f3b7fe4b59198ec84807d78bb85bdac)
++++ b/src/main/java/org/example/repository/UserRepository.java	(date 1715083537339)
+@@ -4,9 +4,14 @@
+ import org.springframework.data.jpa.repository.JpaRepository;
+ import org.springframework.stereotype.Repository;
+ 
++import java.util.Optional;
++
+ @Repository
+ public interface UserRepository extends JpaRepository<User, Long> {
+ 
+-    //    public List<User> findStudentByNameContainsIgnoreCase(String name);
++    Optional<User> findByUsername(String username);
++    Optional<User> findByEmail(String email);
++    boolean existsByUsername(String username);
++    boolean existsByEmail(String email);
+ 
+ }
+Index: src/main/java/org/example/service/JwtService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/service/JwtService.java b/src/main/java/org/example/service/JwtService.java
+new file mode 100644
+--- /dev/null	(date 1713950330087)
++++ b/src/main/java/org/example/service/JwtService.java	(date 1713950330087)
+@@ -0,0 +1,75 @@
++package org.example.service;
++
++import io.jsonwebtoken.Claims;
++import io.jsonwebtoken.Jwts;
++import io.jsonwebtoken.SignatureAlgorithm;
++import io.jsonwebtoken.io.Decoders;
++import io.jsonwebtoken.security.Keys;
++import org.example.entity.User;
++import org.springframework.beans.factory.annotation.Value;
++import org.springframework.security.core.userdetails.UserDetails;
++import org.springframework.stereotype.Service;
++
++import java.security.Key;
++import java.util.Date;
++import java.util.HashMap;
++import java.util.Map;
++import java.util.function.Function;
++
++@Service
++public class JwtService {
++
++    @Value("${token.signing.key}")
++    String jwtSigningKey;
++
++    public String extractUserName(String token) {
++        return extractClaim(token, Claims::getSubject);
++    }
++
++    public String generateToken(UserDetails userDetails) {
++        Map<String, Object> claims = new HashMap<>();
++        if (userDetails instanceof User customUserDetails) {
++            claims.put("id", customUserDetails.getId());
++            claims.put("email", customUserDetails.getEmail());
++            claims.put("role", customUserDetails.getRole());
++        }
++        return generateToken(claims, userDetails);
++    }
++
++    public boolean isTokenValid(String token, UserDetails userDetails) {
++        final String userName = extractUserName(token);
++        return (userName.equals(userDetails.getUsername())) && !isTokenExpired(token);
++    }
++
++    private <T> T extractClaim(String token, Function<Claims, T> claimsResolvers) {
++        final Claims claims = extractAllClaims(token);
++        return claimsResolvers.apply(claims);
++    }
++
++    private String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
++        return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUsername())
++                .setIssuedAt(new Date(System.currentTimeMillis()))
++                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
++                .signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
++    }
++
++    private boolean isTokenExpired(String token) {
++        return extractExpiration(token).before(new Date());
++    }
++
++    private Date extractExpiration(String token) {
++        return extractClaim(token, Claims::getExpiration);
++    }
++
++    private Claims extractAllClaims(String token) {
++        return Jwts.parser().setSigningKey(getSigningKey()).build().parseClaimsJws(token)
++                .getBody();
++    }
++
++    private Key getSigningKey() {
++        byte[] keyBytes = Decoders.BASE64.decode(jwtSigningKey);
++        return Keys.hmacShaKeyFor(keyBytes);
++    }
++
++
++}
+Index: src/main/java/org/example/service/UserService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.example.service;\n\nimport lombok.AllArgsConstructor;\nimport org.example.dto.UserDto;\nimport org.example.entity.User;\nimport org.example.repository.UserRepository;\nimport org.springframework.stereotype.Service;\n\nimport java.util.List;\n\n@Service\n@AllArgsConstructor\npublic class UserService {\n    private final UserRepository repository;\n\n    public String addUser(UserDto dto){\n        if(!dto.getName().isBlank() && dto.getName().length() > 2){\n            User user = new User();\n            user.setName(dto.getName());\n            user.setEmail(dto.getEmail());\n            repository.save(user);\n        }\n        return \"added\";\n    }\n\n    public List<User> getAllUser(){\n        return repository.findAll();\n    }\n\n    public User getUserById(Long id){\n        return repository.getById(id);\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/service/UserService.java b/src/main/java/org/example/service/UserService.java
+--- a/src/main/java/org/example/service/UserService.java	(revision 7d03a6a32f3b7fe4b59198ec84807d78bb85bdac)
++++ b/src/main/java/org/example/service/UserService.java	(date 1715338411263)
+@@ -1,27 +1,62 @@
+ package org.example.service;
+ 
+-import lombok.AllArgsConstructor;
+-import org.example.dto.UserDto;
++import lombok.RequiredArgsConstructor;
++import org.example.CustomException;
++import org.example.entity.Seance;
++import org.example.entity.Ticket;
+ import org.example.entity.User;
+ import org.example.repository.UserRepository;
++import org.springframework.security.core.context.SecurityContextHolder;
++import org.springframework.security.core.userdetails.UserDetailsService;
++import org.springframework.security.core.userdetails.UsernameNotFoundException;
+ import org.springframework.stereotype.Service;
+ 
+ import java.util.List;
+ 
+ @Service
+-@AllArgsConstructor
++@RequiredArgsConstructor
+ public class UserService {
++    
+     private final UserRepository repository;
+ 
+-    public String addUser(UserDto dto){
+-        if(!dto.getName().isBlank() && dto.getName().length() > 2){
+-            User user = new User();
+-            user.setName(dto.getName());
+-            user.setEmail(dto.getEmail());
+-            repository.save(user);
++    public User save(User user) {
++        return repository.save(user);
++    }
++
++    public User create(User user) {
++        if (repository.existsByUsername(user.getUsername())) {
++            // Заменить на свои исключения
++            throw new CustomException("Пользователь с таким именем уже существует", 400);
+         }
+-        return "added";
++
++        if (repository.existsByEmail(user.getEmail())) {
++            throw new CustomException("Пользователь с таким email уже существует", 400);
++        }
++
++        return save(user);
+     }
++
++    public User getByUsername(String username) {
++        return repository.findByUsername(username)
++                .orElseThrow(() -> new CustomException("Пользователь не найдет", 400));
++    }
++
++    public UserDetailsService userDetailsService() {
++        return this::getByUsername;
++    }
++
++    public User getCurrentUser() {
++        // Получение имени пользователя из контекста Spring Security
++        var username = SecurityContextHolder.getContext().getAuthentication().getName();
++        return getByUsername(username);
++    }
++
++    @Deprecated
++    public void getAdmin() {
++        var user = getCurrentUser();
++        user.setRole(User.Role.ROLE_ADMIN);
++        save(user);
++    }
+ 
+     public List<User> getAllUser(){
+         return repository.findAll();
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"AutoImportSettings\">\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\n  </component>\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"ea4f7edd-928c-4c6c-a6f5-1e7ff2c3838c\" name=\"Changes\" comment=\"\">\n      <change afterPath=\"$PROJECT_DIR$/src/main/java/org/example/dto/HallDto.java\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/src/main/java/org/example/dto/PlaceDto.java\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/src/main/java/org/example/entity/Hall.java\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/src/main/java/org/example/entity/Place.java\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/src/main/java/org/example/repository/HallRepository.java\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/src/main/java/org/example/repository/PlaceRepository.java\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/src/main/java/org/example/service/HallService.java\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/src/main/java/org/example/service/PlaceService.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/dataSources.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/dataSources.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/misc.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/misc.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/pom.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/pom.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/Main.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/Main.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/aspect/MyLoggerAspect.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/aspect/MyLoggerAspect.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/aspect/ToLogOurApp.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/aspect/ToLogOurApp.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/controller/HomeController.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/controller/HomeController.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/dto/CinemaDto.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/dto/CinemaDto.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/dto/MovieDto.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/dto/MovieDto.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/dto/RoomDto.java\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/dto/SeanceDto.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/dto/SeanceDto.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/dto/SeatDto.java\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/dto/TicketDto.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/dto/TicketDto.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/dto/UserDto.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/dto/UserDto.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/entity/Cinema.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/entity/Cinema.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/entity/Movie.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/entity/Movie.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/entity/MyLogger.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/entity/MyLogger.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/entity/Room.java\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/entity/Seance.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/entity/Seance.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/entity/Seat.java\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/entity/Ticket.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/entity/Ticket.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/entity/User.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/entity/User.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/repository/CinemaRepository.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/repository/CinemaRepository.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/repository/MovieRepository.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/repository/MovieRepository.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/repository/MyLoggerRepository.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/repository/MyLoggerRepository.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/repository/RoomRepository.java\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/repository/SeanceRepository.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/repository/SeanceRepository.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/repository/SeatRepository.java\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/repository/TicketRepository.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/repository/TicketRepository.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/repository/UserRepository.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/repository/UserRepository.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/service/CinemaService.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/service/CinemaService.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/service/MovieService.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/service/MovieService.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/service/MyLoggerService.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/service/MyLoggerService.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/service/RoomService.java\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/service/SeanceService.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/service/SeanceService.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/service/SeatService.java\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/service/TicketService.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/service/TicketService.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/service/UserService.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/service/UserService.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/main/resources/application.yaml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/resources/application.yaml\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"FileTemplateManagerImpl\">\n    <option name=\"RECENT_TEMPLATES\">\n      <list>\n        <option value=\"Interface\" />\n        <option value=\"Class\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"HighlightingSettingsPerFile\">\n    <setting file=\"file://$PROJECT_DIR$/src/main/java/org/example/Main.java\" root0=\"FORCE_HIGHLIGHTING\" />\n  </component>\n  <component name=\"KubernetesApiProvider\">{\n  &quot;isMigrated&quot;: true\n}</component>\n  <component name=\"MarkdownSettingsMigration\">\n    <option name=\"stateVersion\" value=\"1\" />\n  </component>\n  <component name=\"ProjectColorInfo\">{\n  &quot;associatedIndex&quot;: 3\n}</component>\n  <component name=\"ProjectId\" id=\"2dfqPxFrQUIZuaXSe4myB5xgoj8\" />\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\">\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\n  </component>\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\">{\n  &quot;keyToString&quot;: {\n    &quot;Application.Main.executor&quot;: &quot;Run&quot;,\n    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,\n    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,\n    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,\n    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,\n    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\n    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,\n    &quot;Spring Boot.Main.executor&quot;: &quot;Run&quot;,\n    &quot;git-widget-placeholder&quot;: &quot;main&quot;,\n    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,\n    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,\n    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,\n    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,\n    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,\n    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,\n    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,\n    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,\n    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,\n    &quot;settings.editor.selected.configurable&quot;: &quot;MavenSettings&quot;,\n    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;\n  },\n  &quot;keyToStringList&quot;: {\n    &quot;DatabaseDriversLRU&quot;: [\n      &quot;postgresql&quot;\n    ]\n  }\n}</component>\n  <component name=\"RecentsManager\">\n    <key name=\"CreateClassDialog.RecentsKey\">\n      <recent name=\"org.example.entity\" />\n    </key>\n    <key name=\"MoveFile.RECENT_KEYS\">\n      <recent name=\"$PROJECT_DIR$/src/main/resources\" />\n      <recent name=\"$PROJECT_DIR$/src/main/resources/templates/static\" />\n    </key>\n  </component>\n  <component name=\"RunManager\">\n    <configuration name=\"Main\" type=\"SpringBootApplicationConfigurationType\" factoryName=\"Spring Boot\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"KinoKzDB\" />\n      <option name=\"SPRING_BOOT_MAIN_CLASS\" value=\"org.example.Main\" />\n      <extension name=\"coverage\">\n        <pattern>\n          <option name=\"PATTERN\" value=\"org.example.*\" />\n          <option name=\"ENABLED\" value=\"true\" />\n        </pattern>\n      </extension>\n      <method v=\"2\">\n        <option name=\"Make\" enabled=\"true\" />\n      </method>\n    </configuration>\n    <recent_temporary>\n      <list>\n        <item itemvalue=\"Spring Boot.Main\" />\n      </list>\n    </recent_temporary>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"ea4f7edd-928c-4c6c-a6f5-1e7ff2c3838c\" name=\"Changes\" comment=\"\" />\n      <created>1710409461339</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1710409461339</updated>\n      <workItem from=\"1710409462511\" duration=\"16098000\" />\n      <workItem from=\"1710430450090\" duration=\"6589000\" />\n      <workItem from=\"1710497447755\" duration=\"11190000\" />\n      <workItem from=\"1710539740322\" duration=\"12179000\" />\n      <workItem from=\"1710673037344\" duration=\"3027000\" />\n      <workItem from=\"1710745591194\" duration=\"22818000\" />\n      <workItem from=\"1710796537848\" duration=\"5480000\" />\n      <workItem from=\"1710849178849\" duration=\"80000\" />\n      <workItem from=\"1710955140798\" duration=\"1026000\" />\n      <workItem from=\"1711017567289\" duration=\"23000\" />\n      <workItem from=\"1711278829776\" duration=\"669000\" />\n      <workItem from=\"1711533589182\" duration=\"114000\" />\n      <workItem from=\"1711714943181\" duration=\"1036000\" />\n      <workItem from=\"1711798163832\" duration=\"17625000\" />\n      <workItem from=\"1711879764877\" duration=\"4156000\" />\n      <workItem from=\"1712059590188\" duration=\"371000\" />\n      <workItem from=\"1712060923916\" duration=\"390000\" />\n      <workItem from=\"1712120014441\" duration=\"282000\" />\n      <workItem from=\"1712234019222\" duration=\"7554000\" />\n      <workItem from=\"1712311685653\" duration=\"7763000\" />\n      <workItem from=\"1712399966318\" duration=\"52000\" />\n      <workItem from=\"1712400369486\" duration=\"190000\" />\n      <workItem from=\"1712689164375\" duration=\"13000\" />\n      <workItem from=\"1712689211763\" duration=\"620000\" />\n      <workItem from=\"1712706146166\" duration=\"786000\" />\n      <workItem from=\"1712725014080\" duration=\"1462000\" />\n      <workItem from=\"1712752209470\" duration=\"4000\" />\n      <workItem from=\"1712752220798\" duration=\"616000\" />\n      <workItem from=\"1712827354529\" duration=\"182000\" />\n      <workItem from=\"1712827620894\" duration=\"917000\" />\n      <workItem from=\"1712841344646\" duration=\"5327000\" />\n      <workItem from=\"1712851255303\" duration=\"6422000\" />\n      <workItem from=\"1712873694130\" duration=\"7055000\" />\n      <workItem from=\"1712904729404\" duration=\"2330000\" />\n      <workItem from=\"1712917575031\" duration=\"1987000\" />\n      <workItem from=\"1712923408903\" duration=\"376000\" />\n      <workItem from=\"1712926425208\" duration=\"180000\" />\n      <workItem from=\"1713088991604\" duration=\"17787000\" />\n      <workItem from=\"1713185023207\" duration=\"7333000\" />\n      <workItem from=\"1713253550276\" duration=\"16000\" />\n      <workItem from=\"1713253893713\" duration=\"114000\" />\n    </task>\n    <servers />\n  </component>\n  <component name=\"TypeScriptGeneratedFilesManager\">\n    <option name=\"version\" value=\"3\" />\n  </component>\n  <component name=\"Vcs.Log.Tabs.Properties\">\n    <option name=\"TAB_STATES\">\n      <map>\n        <entry key=\"MAIN\">\n          <value>\n            <State />\n          </value>\n        </entry>\n      </map>\n    </option>\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 7d03a6a32f3b7fe4b59198ec84807d78bb85bdac)
++++ b/.idea/workspace.xml	(date 1715340799865)
+@@ -4,52 +4,27 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="ea4f7edd-928c-4c6c-a6f5-1e7ff2c3838c" name="Changes" comment="">
+-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/dto/HallDto.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/dto/PlaceDto.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/entity/Hall.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/entity/Place.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/HallRepository.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/PlaceRepository.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/service/HallService.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/service/PlaceService.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
++    <list default="true" id="ea4f7edd-928c-4c6c-a6f5-1e7ff2c3838c" name="Changes" comment="Initial commit">
++      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/CustomException.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/config/JwtAuthenticationFilter.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/config/SecurityConfiguration.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/controller/AuthController.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/controller/ExampleController.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/dto/JwtAuthenticationResponse.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/dto/SignInRequest.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/dto/SignUpRequest.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/service/AuthenticationService.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/service/JwtService.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Main.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/aspect/MyLoggerAspect.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/aspect/MyLoggerAspect.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/aspect/ToLogOurApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/aspect/ToLogOurApp.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/controller/HomeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/controller/HomeController.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/dto/CinemaDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/dto/CinemaDto.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/dto/MovieDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/dto/MovieDto.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/dto/RoomDto.java" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/dto/SeanceDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/dto/SeanceDto.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/dto/SeatDto.java" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/dto/TicketDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/dto/TicketDto.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/dto/UserDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/dto/UserDto.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/entity/Cinema.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/entity/Cinema.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/entity/Movie.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/entity/Movie.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/entity/MyLogger.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/entity/MyLogger.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/entity/Room.java" beforeDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/entity/Seance.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/entity/Seance.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/entity/Seat.java" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/entity/Ticket.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/entity/Ticket.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/entity/User.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/repository/CinemaRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/CinemaRepository.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/repository/MovieRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/MovieRepository.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/repository/MyLoggerRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/MyLoggerRepository.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/repository/RoomRepository.java" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/repository/SeanceRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/SeanceRepository.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/repository/SeatRepository.java" beforeDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/repository/TicketRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/TicketRepository.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/UserRepository.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/service/CinemaService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/service/CinemaService.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/service/MovieService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/service/MovieService.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/service/MyLoggerService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/service/MyLoggerService.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/service/RoomService.java" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/service/SeanceService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/service/SeanceService.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/service/SeatService.java" beforeDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/service/TicketService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/service/TicketService.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/service/UserService.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.yaml" afterDir="false" />
+@@ -103,6 +78,7 @@
+     &quot;Spring Boot.Main.executor&quot;: &quot;Run&quot;,
+     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
++    &quot;last_opened_file_path&quot;: &quot;/Users/aephrodita/IdeaProjects/KinoKzDB/src/main/java/org/example/config&quot;,
+     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+@@ -122,12 +98,22 @@
+ }</component>
+   <component name="RecentsManager">
+     <key name="CreateClassDialog.RecentsKey">
++      <recent name="org.example.service" />
+       <recent name="org.example.entity" />
++    </key>
++    <key name="CopyFile.RECENT_KEYS">
++      <recent name="$PROJECT_DIR$/src/main/java/org/example/config" />
++      <recent name="$PROJECT_DIR$/src/main/java/org/example/controller" />
++      <recent name="$PROJECT_DIR$/src/main/java/org/example/dto" />
++      <recent name="$PROJECT_DIR$/src/main/java/org/example" />
+     </key>
+     <key name="MoveFile.RECENT_KEYS">
+       <recent name="$PROJECT_DIR$/src/main/resources" />
+       <recent name="$PROJECT_DIR$/src/main/resources/templates/static" />
+     </key>
++    <key name="CopyClassDialog.RECENTS_KEY">
++      <recent name="org.example.entity" />
++    </key>
+   </component>
+   <component name="RunManager">
+     <configuration name="Main" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+@@ -198,7 +184,42 @@
+       <workItem from="1713185023207" duration="7333000" />
+       <workItem from="1713253550276" duration="16000" />
+       <workItem from="1713253893713" duration="114000" />
++      <workItem from="1713254631447" duration="1271000" />
++      <workItem from="1713268047247" duration="200000" />
++      <workItem from="1713422362187" duration="13175000" />
++      <workItem from="1713472020316" duration="1690000" />
++      <workItem from="1713522798448" duration="3390000" />
++      <workItem from="1713618641768" duration="693000" />
++      <workItem from="1713790069450" duration="12000" />
++      <workItem from="1713930618717" duration="1954000" />
++      <workItem from="1713936386892" duration="807000" />
++      <workItem from="1713944559914" duration="4899000" />
++      <workItem from="1714046491550" duration="17000" />
++      <workItem from="1714046560431" duration="660000" />
++      <workItem from="1714114419603" duration="575000" />
++      <workItem from="1714403266739" duration="31416000" />
++      <workItem from="1714483750959" duration="933000" />
++      <workItem from="1714660180548" duration="425000" />
++      <workItem from="1714660735377" duration="336000" />
++      <workItem from="1714661340522" duration="155000" />
++      <workItem from="1714674717935" duration="9129000" />
++      <workItem from="1714691603248" duration="388000" />
++      <workItem from="1714732284804" duration="5655000" />
++      <workItem from="1714823587649" duration="3266000" />
++      <workItem from="1715076827090" duration="5674000" />
++      <workItem from="1715243983297" duration="14844000" />
++      <workItem from="1715321910223" duration="740000" />
++      <workItem from="1715331647217" duration="5413000" />
+     </task>
++    <task id="LOCAL-00001" summary="Initial commit">
++      <option name="closed" value="true" />
++      <created>1713255207529</created>
++      <option name="number" value="00001" />
++      <option name="presentableId" value="LOCAL-00001" />
++      <option name="project" value="LOCAL" />
++      <updated>1713255207529</updated>
++    </task>
++    <option name="localTasksCounter" value="2" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+@@ -215,4 +236,9 @@
+       </map>
+     </option>
+   </component>
++  <component name="VcsManagerConfiguration">
++    <MESSAGE value="base" />
++    <MESSAGE value="Initial commit" />
++    <option name="LAST_COMMIT_MESSAGE" value="Initial commit" />
++  </component>
+ </project>
+\ No newline at end of file
+Index: src/main/java/org/example/service/AuthenticationService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/service/AuthenticationService.java b/src/main/java/org/example/service/AuthenticationService.java
+new file mode 100644
+--- /dev/null	(date 1715083239262)
++++ b/src/main/java/org/example/service/AuthenticationService.java	(date 1715083239262)
+@@ -0,0 +1,50 @@
++package org.example.service;
++
++import lombok.RequiredArgsConstructor;
++import org.example.dto.JwtAuthenticationResponse;
++import org.example.dto.SignInRequest;
++import org.example.dto.SignUpRequest;
++import org.example.entity.User;
++import org.springframework.security.authentication.AuthenticationManager;
++import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
++import org.springframework.security.crypto.password.PasswordEncoder;
++import org.springframework.stereotype.Service;
++
++@Service
++@RequiredArgsConstructor
++public class AuthenticationService {
++    private final UserService userService;
++    private final JwtService jwtService;
++    private final PasswordEncoder passwordEncoder;
++    private final AuthenticationManager authenticationManager;
++
++    public JwtAuthenticationResponse signUp(SignUpRequest request) {
++
++        var user = User.builder()
++                .username(request.getUsername())
++                .email(request.getEmail())
++                .password(passwordEncoder.encode(request.getPassword()))
++                .role(User.Role.ROLE_USER)
++                .build();
++
++        userService.create(user);
++
++        var jwt = jwtService.generateToken(user);
++        return new JwtAuthenticationResponse(jwt);
++    }
++
++    public JwtAuthenticationResponse signIn(SignInRequest request) {
++        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
++                request.getUsername(),
++                request.getPassword()
++        ));
++
++        var user = userService
++                .userDetailsService()
++                .loadUserByUsername(request.getUsername());
++
++        var jwt = jwtService.generateToken(user);
++        return new JwtAuthenticationResponse(jwt);
++    }
++
++}
+Index: pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n    <modelVersion>4.0.0</modelVersion>\n\n    <groupId>org.example</groupId>\n    <artifactId>KinoKzDB</artifactId>\n    <version>1.0-SNAPSHOT</version>\n\n    <properties>\n        <maven.compiler.source>20</maven.compiler.source>\n        <maven.compiler.target>20</maven.compiler.target>\n        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>\n    </properties>\n\n    <parent>\n        <groupId>org.springframework.boot</groupId>\n        <artifactId>spring-boot-starter-parent</artifactId>\n        <version>3.2.2 </version>\n    </parent>\n\n    <dependencies>\n\n        <dependency>\n            <groupId>org.springdoc</groupId>\n            <artifactId>springdoc-openapi-ui</artifactId>\n            <version>1.7.0</version>\n        </dependency>\n\n        <dependency>\n            <groupId>org.springframework.boot</groupId>\n            <artifactId>spring-boot-starter-web</artifactId>\n        </dependency>\n\n        <dependency>\n            <groupId>org.springframework.boot</groupId>\n            <artifactId>spring-boot-starter-data-jpa</artifactId>\n        </dependency>\n\n        <dependency>\n            <groupId>org.postgresql</groupId>\n            <artifactId>postgresql</artifactId>\n        </dependency>\n\n        <dependency>\n            <groupId>org.projectlombok</groupId>\n            <artifactId>lombok</artifactId>\n            <version>1.18.30</version>\n            <scope>provided</scope>\n        </dependency>\n\n        <dependency>\n            <groupId>org.projectlombok</groupId>\n            <artifactId>lombok</artifactId>\n            <optional>true</optional>\n        </dependency>\n\n        <dependency>\n            <groupId>org.springframework</groupId>\n            <artifactId>spring-context</artifactId>\n            <version>6.1.3</version>\n        </dependency>\n\n        <dependency>\n            <groupId>org.springframework.boot</groupId>\n            <artifactId>spring-boot-starter-thymeleaf</artifactId>\n        </dependency>\n\n        <dependency>\n            <groupId>com.h2database</groupId>\n            <artifactId>h2</artifactId>\n            <scope>runtime</scope>\n        </dependency>\n\n        <dependency>\n            <groupId>org.springframework.boot</groupId>\n            <artifactId>spring-boot-starter-test</artifactId>\n            <scope>test</scope>\n            <exclusions>\n                <exclusion>\n                    <groupId>org.junit.vintage</groupId>\n                    <artifactId>junit-vintage-engine</artifactId>\n                </exclusion>\n            </exclusions>\n        </dependency>\n\n    </dependencies>\n\n    <build>\n        <plugins>\n            <plugin>\n                <groupId>org.springframework.boot</groupId>\n                <artifactId>spring-boot-maven-plugin</artifactId>\n            </plugin>\n        </plugins>\n    </build>\n\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/pom.xml b/pom.xml
+--- a/pom.xml	(revision 7d03a6a32f3b7fe4b59198ec84807d78bb85bdac)
++++ b/pom.xml	(date 1713950146639)
+@@ -17,81 +17,132 @@
+     <parent>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-parent</artifactId>
+-        <version>3.2.2 </version>
++        <version>3.2.5</version>
++        <relativePath/> <!-- lookup parent from repository -->
+     </parent>
+ 
+     <dependencies>
+ 
++        <!-- База данных -->
++
++        <dependency>
++            <groupId>com.h2database</groupId>
++            <artifactId>h2</artifactId>
++            <scope>runtime</scope>
++        </dependency>
++
++        <dependency>
++            <groupId>org.springframework.boot</groupId>
++            <artifactId>spring-boot-starter-data-jpa</artifactId>
++        </dependency>
++        <!-- Безопасность -->
+         <dependency>
+-            <groupId>org.springdoc</groupId>
+-            <artifactId>springdoc-openapi-ui</artifactId>
+-            <version>1.7.0</version>
++            <groupId>org.springframework.boot</groupId>
++            <artifactId>spring-boot-starter-security</artifactId>
++        </dependency>
++        <dependency>
++            <groupId>io.jsonwebtoken</groupId>
++            <artifactId>jjwt-api</artifactId>
++        </dependency>
++        <dependency>
++            <groupId>io.jsonwebtoken</groupId>
++            <artifactId>jjwt-impl</artifactId>
++        </dependency>
++        <dependency>
++            <groupId>io.jsonwebtoken</groupId>
++            <artifactId>jjwt-jackson</artifactId>
++        </dependency>
++        <dependency>
++            <groupId>org.springframework.boot</groupId>
++            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+         </dependency>
+-
+         <dependency>
+             <groupId>org.springframework.boot</groupId>
+             <artifactId>spring-boot-starter-web</artifactId>
+         </dependency>
++        <dependency>
++            <groupId>org.thymeleaf.extras</groupId>
++            <artifactId>thymeleaf-extras-springsecurity6</artifactId>
++        </dependency>
+ 
+         <dependency>
+             <groupId>org.springframework.boot</groupId>
+-            <artifactId>spring-boot-starter-data-jpa</artifactId>
++            <artifactId>spring-boot-devtools</artifactId>
++            <scope>runtime</scope>
++            <optional>true</optional>
+         </dependency>
+-
+         <dependency>
+             <groupId>org.postgresql</groupId>
+             <artifactId>postgresql</artifactId>
++            <scope>runtime</scope>
+         </dependency>
+-
+         <dependency>
+             <groupId>org.projectlombok</groupId>
+             <artifactId>lombok</artifactId>
+-            <version>1.18.30</version>
+-            <scope>provided</scope>
++            <optional>true</optional>
+         </dependency>
+-
+         <dependency>
+-            <groupId>org.projectlombok</groupId>
+-            <artifactId>lombok</artifactId>
+-            <optional>true</optional>
++            <groupId>org.springframework.boot</groupId>
++            <artifactId>spring-boot-starter-test</artifactId>
++            <scope>test</scope>
+         </dependency>
+-
+         <dependency>
+-            <groupId>org.springframework</groupId>
+-            <artifactId>spring-context</artifactId>
+-            <version>6.1.3</version>
++            <groupId>org.springframework.security</groupId>
++            <artifactId>spring-security-test</artifactId>
++            <scope>test</scope>
+         </dependency>
+ 
++
++        <!-- Утилиты -->
+         <dependency>
+             <groupId>org.springframework.boot</groupId>
+-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
++            <artifactId>spring-boot-starter-validation</artifactId>
+         </dependency>
+-
+         <dependency>
+-            <groupId>com.h2database</groupId>
+-            <artifactId>h2</artifactId>
+-            <scope>runtime</scope>
++            <groupId>org.apache.commons</groupId>
++            <artifactId>commons-lang3</artifactId>
+         </dependency>
+-
+         <dependency>
+-            <groupId>org.springframework.boot</groupId>
+-            <artifactId>spring-boot-starter-test</artifactId>
+-            <scope>test</scope>
+-            <exclusions>
+-                <exclusion>
+-                    <groupId>org.junit.vintage</groupId>
+-                    <artifactId>junit-vintage-engine</artifactId>
+-                </exclusion>
+-            </exclusions>
++            <groupId>org.springdoc</groupId>
++            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
++            <version>2.2.0</version>
+         </dependency>
+ 
+     </dependencies>
++
++    <dependencyManagement>
++        <dependencies>
++            <dependency>
++                <groupId>io.jsonwebtoken</groupId>
++                <artifactId>jjwt-api</artifactId>
++                <version>0.12.3</version>
++            </dependency>
++            <dependency>
++                <groupId>io.jsonwebtoken</groupId>
++                <artifactId>jjwt-impl</artifactId>
++                <version>0.12.3</version>
++            </dependency>
++            <dependency>
++                <groupId>io.jsonwebtoken</groupId>
++                <artifactId>jjwt-jackson</artifactId>
++                <version>0.12.3</version>
++            </dependency>
++        </dependencies>
++    </dependencyManagement>
+ 
+     <build>
+         <plugins>
+             <plugin>
+                 <groupId>org.springframework.boot</groupId>
+                 <artifactId>spring-boot-maven-plugin</artifactId>
++                <configuration>
++                    <excludes>
++                        <exclude>
++                            <groupId>org.projectlombok</groupId>
++                            <artifactId>lombok</artifactId>
++                        </exclude>
++                    </excludes>
++                </configuration>
+             </plugin>
+         </plugins>
+     </build>
+Index: src/main/java/org/example/dto/UserDto.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.example.dto;\n\nimport lombok.*;\n\n@Getter\n@Setter\n@NoArgsConstructor\n@AllArgsConstructor\n@ToString\npublic class UserDto {\n    private Long id;\n    private String name;\n    private String email;\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/dto/UserDto.java b/src/main/java/org/example/dto/UserDto.java
+--- a/src/main/java/org/example/dto/UserDto.java	(revision 7d03a6a32f3b7fe4b59198ec84807d78bb85bdac)
++++ b/src/main/java/org/example/dto/UserDto.java	(date 1713950763091)
+@@ -9,6 +9,7 @@
+ @ToString
+ public class UserDto {
+     private Long id;
+-    private String name;
++    private String username;
+     private String email;
++    private String password;
+ }
+Index: src/main/java/org/example/service/TicketService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.example.service;\n\nimport lombok.AllArgsConstructor;\nimport org.example.dto.TicketDto;\nimport org.example.entity.*;\nimport org.example.repository.TicketRepository;\nimport org.springframework.stereotype.Service;\n\nimport java.util.List;\n\n@Service\n@AllArgsConstructor\npublic class TicketService {\n    private final TicketRepository repository;\n\n    public String addTicket(TicketDto dto){\n        try {\n            //\n        }catch (Exception e){\n            return \"not added \" + e.getMessage();\n        }\n        return \"added\";\n    }\n\n    public List<Ticket> getAllTicket(){\n        return repository.findAll();\n    }\n    public List<Ticket> findTicketInSeance(long seanceId) {\n        return repository.findBySeanceId(seanceId);\n    }\n\n    public Ticket getTicketById(Long id){\n        return repository.getById(id);\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/service/TicketService.java b/src/main/java/org/example/service/TicketService.java
+--- a/src/main/java/org/example/service/TicketService.java	(revision 7d03a6a32f3b7fe4b59198ec84807d78bb85bdac)
++++ b/src/main/java/org/example/service/TicketService.java	(date 1715286387637)
+@@ -12,6 +12,7 @@
+ @AllArgsConstructor
+ public class TicketService {
+     private final TicketRepository repository;
++    private final UserService userService;
+ 
+     public String addTicket(TicketDto dto){
+         try {
+@@ -22,10 +23,21 @@
+         return "added";
+     }
+ 
++    public String buyTicket(long ticketId, long userId){
++        Ticket existingTicket = repository.findById(ticketId);
++        User user = userService.getUserById(userId);
++        existingTicket.setUser(user);
++        repository.save(existingTicket);
++        return "buyed";
++    }
++
+     public List<Ticket> getAllTicket(){
+         return repository.findAll();
+     }
+-    public List<Ticket> findTicketInSeance(long seanceId) {
++    public Ticket getOneTicket(long ticketId){
++        return repository.findById(ticketId);
++    }
++    public List<Ticket> findTicketBySeanceId(long seanceId) {
+         return repository.findBySeanceId(seanceId);
+     }
+ 
+Index: src/main/java/org/example/entity/Seance.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.example.entity;\n\nimport jakarta.persistence.*;\nimport lombok.*;\n\n@Table(name = \"seance\")\n@Entity\n@Getter\n@Setter\n@NoArgsConstructor\n@AllArgsConstructor\n@ToString\npublic class Seance {\n    @Id\n    @GeneratedValue\n    @Column(name = \"id\")\n    private long id;\n    @ManyToOne\n    @JoinColumn(name = \"hall_id\", referencedColumnName = \"id\")\n    private Hall hall;\n    @ManyToOne\n    @JoinColumn(name = \"movie_id\", referencedColumnName = \"id\")\n    private Movie movie;\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/entity/Seance.java b/src/main/java/org/example/entity/Seance.java
+--- a/src/main/java/org/example/entity/Seance.java	(revision 7d03a6a32f3b7fe4b59198ec84807d78bb85bdac)
++++ b/src/main/java/org/example/entity/Seance.java	(date 1715247828707)
+@@ -1,8 +1,11 @@
+ package org.example.entity;
+ 
++import com.fasterxml.jackson.annotation.JsonIgnore;
+ import jakarta.persistence.*;
+ import lombok.*;
+ 
++import java.util.List;
++
+ @Table(name = "seance")
+ @Entity
+ @Getter
+Index: src/main/java/org/example/service/MovieService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.example.service;\n\nimport lombok.AllArgsConstructor;\nimport org.example.dto.MovieDto;\nimport org.example.entity.Movie;\nimport org.example.repository.MovieRepository;\nimport org.springframework.stereotype.Service;\n\nimport java.util.List;\n\n@Service\n@AllArgsConstructor\npublic class MovieService {\n    private final MovieRepository repository;\n\n    public String addMovie(MovieDto dto){\n        if(!dto.getName().isBlank() && dto.getName().length() > 2){\n            Movie movie = new Movie();\n            movie.setName(dto.getName());\n            movie.setName_kaz(dto.getName_kaz());\n            movie.setName_rus(dto.getName_rus());\n            movie.setDescription(dto.getDescription());\n            movie.setProduction(dto.getProduction());\n            movie.setDirector(dto.getDirector());\n            movie.setAge_restriction(dto.getAge_restriction());\n            movie.setRating(dto.getRating());\n            movie.setVotes(0);\n            repository.save(movie);\n        }\n        return \"added\";\n    }\n\n    public List<Movie> getAllMovie(){\n        return repository.findAll();\n    }\n\n    public Movie getOneMovie(long movieId){\n        return repository.findById(movieId);\n    }\n\n    public Movie getMovieById(Long id){\n        return repository.getById(id);\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/service/MovieService.java b/src/main/java/org/example/service/MovieService.java
+--- a/src/main/java/org/example/service/MovieService.java	(revision 7d03a6a32f3b7fe4b59198ec84807d78bb85bdac)
++++ b/src/main/java/org/example/service/MovieService.java	(date 1715259237548)
+@@ -14,22 +14,41 @@
+     private final MovieRepository repository;
+ 
+     public String addMovie(MovieDto dto){
+-        if(!dto.getName().isBlank() && dto.getName().length() > 2){
+-            Movie movie = new Movie();
+-            movie.setName(dto.getName());
+-            movie.setName_kaz(dto.getName_kaz());
+-            movie.setName_rus(dto.getName_rus());
+-            movie.setDescription(dto.getDescription());
+-            movie.setProduction(dto.getProduction());
+-            movie.setDirector(dto.getDirector());
+-            movie.setAge_restriction(dto.getAge_restriction());
+-            movie.setRating(dto.getRating());
+-            movie.setVotes(0);
+-            repository.save(movie);
+-        }
++        Movie movie = new Movie();
++        movie.setName(dto.getName());
++        movie.setName_kaz(dto.getName_kaz());
++        movie.setName_rus(dto.getName_rus());
++        movie.setDescription(dto.getDescription());
++        movie.setProduction(dto.getProduction());
++        movie.setDirector(dto.getDirector());
++        movie.setAge_restriction(dto.getAge_restriction());
++        movie.setRating(dto.getRating());
++        movie.setVotes(0);
++        repository.save(movie);
++
+         return "added";
+     }
+ 
++    public String updateMovie(long movieId, MovieDto updatedMovie) {
++        Movie existingMovie = repository.findById(movieId);
++        existingMovie.setName(updatedMovie.getName());
++        existingMovie.setName_kaz(updatedMovie.getName_kaz());
++        existingMovie.setName_rus(updatedMovie.getName_rus());
++        existingMovie.setDescription(updatedMovie.getDescription());
++        existingMovie.setProduction(updatedMovie.getProduction());
++        existingMovie.setDirector(updatedMovie.getDirector());
++        existingMovie.setAge_restriction(updatedMovie.getAge_restriction());
++        existingMovie.setRating(updatedMovie.getRating());
++        repository.save(existingMovie);
++        return "updated";
++    }
++
++    public String deleteMovie(long movieId) {
++        Movie movie = repository.findById(movieId);
++        repository.delete(movie);
++        return "deleted";
++    }
++
+     public List<Movie> getAllMovie(){
+         return repository.findAll();
+     }

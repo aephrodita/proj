@@ -1,6 +1,7 @@
 package org.example.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -33,6 +34,7 @@ public class User implements UserDetails {
     private String email;
 
     @Enumerated(EnumType.STRING)
+    @NotNull
     @Column(name = "role", nullable = false)
     private Role role;
 

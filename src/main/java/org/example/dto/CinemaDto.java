@@ -12,5 +12,4 @@ public class CinemaDto {
     private String name;
     private String address;
     private String city_name;
-    private String description;
 }

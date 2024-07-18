@@ -31,6 +31,16 @@ public class TicketService {
         return "buyed";
     }
 
+    public String returnTicket(long ticketId){
+        Ticket existingTicket = repository.findById(ticketId);
+        existingTicket.setUser(null);
+        repository.save(existingTicket);
+        return "ticket is returned";
+    }
+
+    public List<Ticket> findTicketByUserId(long userId) {
+        return repository.findByUserId(userId);
+    }
     public List<Ticket> getAllTicket(){
         return repository.findAll();
     }
