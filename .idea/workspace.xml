@@ -5,48 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ea4f7edd-928c-4c6c-a6f5-1e7ff2c3838c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_05_2024,_17_37_[Changes]/shelved.patch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_05_2024__17_37__Changes_.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/controller/CinemaController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/controller/HallController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/controller/MovieController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/controller/PlaceController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/controller/SeanceController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/controller/TicketController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/70a0d60c-38df-448b-bdb8-d13e90525bdf.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/70a0d60c-38df-448b-bdb8-d13e90525bdf.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/70a0d60c-38df-448b-bdb8-d13e90525bdf/storage_v2/_src_/database/postgres.edMnLQ/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/70a0d60c-38df-448b-bdb8-d13e90525bdf/storage_v2/_src_/database/postgres.edMnLQ/schema/public.abK9xQ.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/87dcf6ae-ce5a-4b7e-81c4-8c087e9d4e0c.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/87dcf6ae-ce5a-4b7e-81c4-8c087e9d4e0c/storage_v2/_src_/database/kinokz.Tt2RvA.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/87dcf6ae-ce5a-4b7e-81c4-8c087e9d4e0c/storage_v2/_src_/database/kinokz.Tt2RvA/schema/information_schema.FNRwLQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/87dcf6ae-ce5a-4b7e-81c4-8c087e9d4e0c/storage_v2/_src_/database/kinokz.Tt2RvA/schema/pg_catalog.0S1ZNQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/87dcf6ae-ce5a-4b7e-81c4-8c087e9d4e0c/storage_v2/_src_/database/kinokz.Tt2RvA/schema/public.abK9xQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/fa230fed-8b64-43eb-ab8f-a77c8eb77d86.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/fa230fed-8b64-43eb-ab8f-a77c8eb77d86/storage_v2/_src_/database/postgres.edMnLQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/fa230fed-8b64-43eb-ab8f-a77c8eb77d86/storage_v2/_src_/database/postgres.edMnLQ/schema/information_schema.FNRwLQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/fa230fed-8b64-43eb-ab8f-a77c8eb77d86/storage_v2/_src_/database/postgres.edMnLQ/schema/pg_catalog.0S1ZNQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/fa230fed-8b64-43eb-ab8f-a77c8eb77d86/storage_v2/_src_/database/postgres.edMnLQ/schema/public.abK9xQ.meta" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/controller/ExampleController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/controller/HomeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/controller/HomeController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/dto/CinemaDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/dto/CinemaDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/dto/MovieDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/dto/MovieDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/entity/Cinema.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/entity/Cinema.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/entity/Hall.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/entity/Hall.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/entity/Movie.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/entity/Movie.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/entity/MyLogger.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/entity/MyLogger.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/entity/Place.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/entity/Place.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/entity/Seance.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/entity/Seance.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/entity/Ticket.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/entity/Ticket.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/entity/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/repository/TicketRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/TicketRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/service/CinemaService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/service/CinemaService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/service/MovieService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/service/MovieService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/service/PlaceService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/service/PlaceService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/service/SeanceService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/service/SeanceService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/service/TicketService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/service/TicketService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -142,7 +101,7 @@
       <workItem from="1720679090843" duration="60000" />
       <workItem from="1721137358805" duration="153000" />
       <workItem from="1721235635386" duration="4736000" />
-      <workItem from="1721241338219" duration="13377000" />
+      <workItem from="1721241338219" duration="14331000" />
     </task>
     <servers />
   </component>
