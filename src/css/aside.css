@@ -1,0 +1,69 @@
+.aside{
+    width: 245px;
+    height: 100%;
+    position: fixed;
+    background-color: #424c53;
+}
+
+.aside-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+    padding: 8px 12px 20px 12px;
+}
+
+.aside-menu{
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+}
+
+.aside-more{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0px;
+    margin: 0px;
+}
+
+.aside-field-group {
+    padding: 12px;
+    margin: 4px;
+    border: 8px;
+    border-radius: 8px;
+}
+
+.aside-field-group:hover{
+    background-color: #6a6a6a;
+}
+
+.main {
+    display: flex;
+    color: white;
+}
+
+.center{
+    display: flex;
+    align-items: center;
+}
+
+.pg-16{
+    padding-left: 16px;
+}
+
+.profile_img{
+    height: 24px;
+    width: 24px;
+    border-radius: 50%;
+    background-color: darkgrey;
+}
+
+a {
+    color: aliceblue;
+    text-decoration: none;
+    background-color: transparent;
+}
+
+

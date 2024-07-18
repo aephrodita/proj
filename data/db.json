@@ -1,0 +1,45 @@
+{
+  "movies": [
+    {
+      "name":"Duna",
+      "age_restriction":16,
+      "rating":7.82
+    },
+    {
+      "name":"Spiderman",
+      "age_restriction":14,
+      "rating":9
+    },
+    {
+      "name":"Snowfall",
+      "age_restriction":12,
+      "rating":4.2
+    },
+    {
+      "name":"The last of us",
+      "age_restriction":6,
+      "rating":8.2
+    }
+  ],
+  "cinema": [
+    {
+      "id":784,
+      "name":"Halyk IMAX Kinopark 16",
+      "address":"Кульджинский тракт, 106, молл Aport East, 2 этаж",
+      "city_name":"Алматы",
+      "description":"",
+      "halls":[
+        {
+          "id":976,
+          "cinema_id":784,
+          "name":"Зал 1 IMAX with laser",
+          "latitude":1,
+          "longitude":1,
+          "provider_hall_id":13613
+        }
+      ]
+    }
+  ]
+}
+
+
